@@ -40,12 +40,14 @@ if __name__=='__main__':
 		hops, result = getHops(samples, n_samples, max_sample, min_sample)
 
 		# We get the audio PSNR
+		print ""
 		calculatePSNR(result, samples, n_samples)
 		print ""
 
 		# Binary encoder
 		sym = getSymbols(hops)
 		writeFile(sym, samples[0], n_samples, max_sample, min_sample)
+		print ".lhe file created."
 
 	# --- DECODER --- #
 
@@ -62,6 +64,7 @@ if __name__=='__main__':
 		hops = symbolsToHops(sym)
 		samples = hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample)
 		getAudio(samples)
+		print "Output audio file created."
 
 	# --- EXIT --- #
 
