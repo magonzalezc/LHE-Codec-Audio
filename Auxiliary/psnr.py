@@ -43,7 +43,8 @@ def calculatePSNR(amp_pred, amp, n_samples):
         meanSquaredError = float(total_amp) / float(n_samples) # And we get the mean squared error per pixel
         
         if (meanSquaredError != 0):
-                peakSignalToNoiseRatio = float(10 * math.log(32768 * 32768 / meanSquaredError, 10)) # We use 32768 because we're using 16 bits for every amplitude value
+        		# We use 65535 because we're using 16+16 bits for every amplitude value (positive and negative)
+                peakSignalToNoiseRatio = float(10 * math.log(65535 * 65535 / meanSquaredError, 10))
                 print "Peak Signal to Noise Ratio (PSNR) = ", round(peakSignalToNoiseRatio, 2), "dB"
         else:
                 print "Peak Signal to Noise Ratio (PSNR) = 0 dB" # Ideal case
