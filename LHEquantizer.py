@@ -100,7 +100,7 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 	hop0 = hop0 - min_sample
 
 	percent_range = 0.8 # Factor for positive and negative ratios
-	rmax = 13.5 # Factor for ratio limits
+	rmax = 3 # Factor for ratio limits
 	hop_result = 0 # Final hop
 
 	# Ratio values for positive hops	
@@ -178,8 +178,8 @@ def getHops(samples, n_samples, max_sample, min_sample):
 	"""	
 
 	# Hop1 interval: [512, 1280], since we are working with 16 bits
-	max_hop1 = 1280
-	min_hop1 = 512
+	max_hop1 = 2560
+	min_hop1 = 1024
 
 	# We start in the center of the interval
 	start_hop1 = (max_hop1+min_hop1)/2 
