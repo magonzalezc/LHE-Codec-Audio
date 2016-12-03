@@ -33,12 +33,11 @@ if __name__=='__main__':
 	if function == "enc":
 
 		# Input audio path
-		using = "input_audio/silence.wav"
+		using = "input_audio/track1.wav"
 
 		# LHE Quantizer
 		samples, n_samples, max_sample, min_sample = getSamples(using)
 		hops, result = getHops(samples, n_samples, max_sample, min_sample)
-
 		# We get the audio PSNR
 		print ""
 		calculatePSNR(result, samples, n_samples)
@@ -62,6 +61,7 @@ if __name__=='__main__':
 
 		# Audio decoder
 		hops = symbolsToHops(sym)
+
 		samples = hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample)
 		getAudio(samples)
 		print "Output audio file created."

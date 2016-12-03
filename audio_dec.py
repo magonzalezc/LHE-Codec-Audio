@@ -67,9 +67,9 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
 
 	"""
 
-	# Hop1 interval: [512, 1280], since we are working with 16 bits
-	max_hop1 = 2560
-	min_hop1 = 1024
+	# Hop1 interval: [1024, 2560], since we are working with 16 bits
+	max_hop1 = 1000
+	min_hop1 = 4
 
 	# We start in the center of the interval
 	start_hop1 = (max_hop1 + min_hop1) / 2 

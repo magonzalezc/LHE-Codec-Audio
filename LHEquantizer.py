@@ -38,7 +38,10 @@ def getSamples(filename):
 	# We don't know how big are the samples, so we extract them with 'l' (32 bits)
 	for i in range(0, n_samples):
 		waveData = file.readframes(1)
-		data[i] = int(struct.unpack("<l", waveData)[0])
+		try:
+			data[i] = int(struct.unpack("<h", waveData)[0])
+		except:
+			data[i] = int(struct.unpack("<hh", waveData)[0])
 
 	# Then we scale the samples (if needed) so they have 16 bits
 	if (max(data) > 32767 or min(data) < 32768):
@@ -69,7 +72,8 @@ def scaleSamples(samples, scaled_max_value):
 
 	# We scale all the samples
 	for i in range(0, len(samples)):
-		samples[i] = int(samples[i]/ksamp)
+		if (ksamp != 0):
+			samples[i] = int(samples[i]/ksamp)
 
 	return samples
 
@@ -100,7 +104,7 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 	hop0 = hop0 - min_sample
 
 	percent_range = 0.8 # Factor for positive and negative ratios
-	rmax = 3 # Factor for ratio limits
+	rmax = 13.5 # Factor for ratio limits
 	hop_result = 0 # Final hop
 
 	# Ratio values for positive hops	
@@ -177,9 +181,9 @@ def getHops(samples, n_samples, max_sample, min_sample):
 
 	"""	
 
-	# Hop1 interval: [512, 1280], since we are working with 16 bits
-	max_hop1 = 2560
-	min_hop1 = 1024
+	# Hop1 interval: [1024, 2560], since we are working with 16 bits
+	max_hop1 = 1000
+	min_hop1 = 4
 
 	# We start in the center of the interval
 	start_hop1 = (max_hop1+min_hop1)/2 
