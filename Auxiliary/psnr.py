@@ -40,8 +40,6 @@ def calculatePSNR(amp_pred, amp, n_samples):
 	for i in range(0, len(amp)): 
 
 		dif_amp = abs(amp_pred[i] - amp[i]) # Simple error between predicted and original amplitude
-		if i>100000:
-			print dif_amp,
 		sum_amp = sum_amp + dif_amp
 		var_amp = var_amp + abs(dif_amp)
 		total_amp = total_amp + pow(dif_amp, 2) # We add its square to the summatory
