@@ -7,7 +7,7 @@ This module gets and saves the decoded audio, given its symbols lists.
 # Author: Eduardo Rodes Pastor
 
 import struct, wave
-from example import calculateHops
+from example import calculateHops, nextHop
 
 # --------------#
 # AUDIO DECODER #
@@ -68,8 +68,8 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
 	"""
 
 	# Hop1 interval: [1024, 2560], since we are working with 16 bits
-	max_hop1 = 1000
-	min_hop1 = 4
+	max_hop1 = 1280
+	min_hop1 = 512
 
 	# We start in the center of the interval
 	start_hop1 = (max_hop1 + min_hop1) / 2 
@@ -93,7 +93,24 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
 
 		# We just need the previous amplitude value, since audio amplitude is a continuous function
 		if (s > 0):
-			hop0 = result[amp-1]
+			if hops[amp-1] == 4:
+				hop0 = result[amp-1]
+			elif hops[amp-1] == 5:
+				hop0 = result[amp-1] + 400
+			elif hops[amp-1] == 3:
+				hop0 = result[amp-1] - 400
+			elif hops[amp-1] == 6:
+				hop0 = result[amp-1] + 600
+			elif hops[amp-1] == 2:
+				hop0 = result[amp-1] - 600
+			elif hops[amp-1] == 7:
+				hop0 = result[amp-1] + 800
+			elif hops[amp-1] == 1:
+				hop0 = result[amp-1] - 800
+			elif hops[amp-1] == 8:
+				hop0 = result[amp-1] + 1000
+			elif hops[amp-1] == 0:
+				hop0 = result[amp-1] - 1000
 		else:
 			hop0 = first_amp # If there isn't previous value, we are in the first sample
 
@@ -109,7 +126,7 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
 
 		# If we have small hops, that means we are in a plain zone, so we increase precision
 		if (small_hop == "true" and last_small_hop == "true"):
-			hop1 = hop1 - 128
+			hop1 = hop1 - 100
 			if (hop1 < min_hop1):
 				hop1 = min_hop1 
 		else:

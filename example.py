@@ -37,7 +37,11 @@ if __name__=='__main__':
 
 		# LHE Quantizer
 		samples, n_samples, max_sample, min_sample = getSamples(using)
+
 		hops, result = getHops(samples, n_samples, max_sample, min_sample)
+		print result[10000:10050]
+		print samples[10000:10050]
+		print hops[10000:10050]
 		# We get the audio PSNR
 		print ""
 		calculatePSNR(result, samples, n_samples)
