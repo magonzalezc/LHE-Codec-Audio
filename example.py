@@ -33,7 +33,7 @@ if __name__=='__main__':
 	if function == "enc":
 
 		# Input audio path
-		using = "input_audio/track1.wav"
+		using = "input_audio/insomnia.wav"
 
 		# LHE Quantizer
 		samples, n_samples, max_sample, min_sample = getSamples(using)
