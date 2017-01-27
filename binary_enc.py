@@ -66,8 +66,11 @@ def getSymbols(hops):
 			continue
 
 		# If the hop is not null, we check the distribution list
-		else: 
-			sym[k] = distribution[hops[k]]
+		else:
+			if type(hops[k]) is int:
+				sym[k] = distribution[hops[k]]
+			else:
+				sym[k] = hops[k]
 			if (cnt != 0): # If we get a != '1' symbol, we reset the counter and save it in an array
 				cnt = 0 # Reset
 				if (in_chain == "false"): 

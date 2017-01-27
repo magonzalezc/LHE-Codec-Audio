@@ -155,7 +155,10 @@ def getSymbolsList(lhe_file, n_sym, n_samples):
 
 	# Amplitude saving
 	for i in range(0, len(prov_sym)):
-		final_sym[i] = int(prov_sym[i])
+		try:
+			final_sym[i] = int(prov_sym[i])
+		except:
+			final_sym[i] = prov_sym[i]
 
 	# We delete the files we won't use anymore.
 	os.remove("output_lhe/out-huffman_audio.lhe")
