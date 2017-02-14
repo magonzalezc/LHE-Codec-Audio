@@ -20,7 +20,7 @@ import struct, wave
 #*******************************************************************************#
 
 def getSamples(filename):
-	"""Returns a list of samples of an audio file (scaled to 16 bits), 
+	"""Returns a list of samples of an audio file (scaled to 16 bits),
 	its length, maximum and minimum value.
 
 	Parameters: Input audio file
@@ -40,7 +40,7 @@ def getSamples(filename):
 		waveData = file.readframes(1)
 		#data[i] = int(struct.unpack("<l", waveData)[0])
                 data[i] = int(struct.unpack("<l", waveData)[0])
-                
+
 	# Then we scale the samples (if needed) so they have 16 bits
 	#if (max(data) > 65535 or min(data) < 65535):
 	data = scaleSamples(data, 32767)
@@ -72,7 +72,7 @@ def scaleSamples(samples, scaled_max_value):
 	ksamp = maximum/scaled_max_value # Scaling factor
 	ksamp=pow(2,31)/32768
         print "max y min samples:",int(max(samples)),int(min(samples))
-                                                  
+
 	# We scale all the samples
 	for i in range(0, len(samples)):
                 #ksamp=131070
@@ -95,7 +95,7 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 	"""Returns the value of the new hop based on the calculations with
 	the previous one, actual sample value and distance to the first hop.
 
-	Parameters: Actual sample value, number of samples to the first hop, 
+	Parameters: Actual sample value, number of samples to the first hop,
 	previous hop value, scaled maximum and minimum sample values.
 
 	Exceptions: This function does not throw an exception.
@@ -108,7 +108,7 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 
 	percent_range = 1 # Factor for positive and negative ratios
 	#rmax = 13.5 # Factor for ratio limits
-	rmax = 4 # Factor for ratio limits 128*r*r*r = 27648
+	rmax = 2.5 # Factor for ratio limits 128*r*r*r = 27648
 
 
         # con rango=1 parece mejor. curioso
@@ -124,38 +124,38 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
         # r=2.5 -> 44.09
         # r=3 -> 44.13
         # r=4 -> 44.09
-	
+
 	hop_result = 0 # Final hop
 
-	# Ratio values for positive hops	
-	#ratio_pos = pow(percent_range * abs((max_sample - min_sample - 1 - hop0)/(hop1)), 0.33333333) 
-        ratio_pos = pow(percent_range * abs((32767 - hop0)/(hop1)), 0.33333333) 
-	
+	# Ratio values for positive hops
+	#ratio_pos = pow(percent_range * abs((max_sample - min_sample - 1 - hop0)/(hop1)), 0.33333333)
+	ratio_pos = pow(percent_range * abs((65535 - hop0)/(hop1)), 0.33333333)
+
 	# Ratio values for negative hops
-	ratio_neg = pow(percent_range * abs((hop0)/(hop1)), 0.33333333) 	
-        
-        
+	ratio_neg = pow(percent_range * abs((hop0)/(hop1)), 0.33333333)
+
+
 	ratio_pos= min (ratio_pos,rmax)
 	ratio_neg= min (ratio_neg,rmax)
 
 	# con ratio=2 obtengo 48.08 db
 	# con ratio=2.5 obtengo 47.18 db
-        ratio_pos=2
-        ratio_neg=2
-        
-	
+        #ratio_pos=2
+        #ratio_neg=2
+
+
 	# --- AMPLITUDES COMPUTATION --- #
-        
+
 
 	# Amplitude of positive hops
-	h6 = hop1 * ratio_pos 
-	h7 = h6 * ratio_pos 
-	h8 = h7 * ratio_pos 
+	h6 = hop1 * ratio_pos
+	h7 = h6 * ratio_pos
+	h8 = h7 * ratio_pos
 
-	# Amplitude of negative hops	                        
-	h2 = hop1 * ratio_neg 
-	h1 = h2 * ratio_neg 
-	h0 = h1 * ratio_neg 
+	# Amplitude of negative hops
+	h2 = hop1 * ratio_neg
+	h1 = h2 * ratio_neg
+	h0 = h1 * ratio_neg
 
 	# Hop result values
 	if hop_number == 4:
@@ -182,7 +182,7 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 		hop_result = 1
 	if (hop_result > max_sample - min_sample):
 		hop_result = max_sample - min_sample - 1
-	
+
 	# We bring back the sample to the [-32768, 32767] interval
 	hop_result = hop_result + min_sample
 
@@ -191,7 +191,7 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 
 #*******************************************************************************#
 #	Function getHops: This gets a specific hop list given the samples values.   #
-#	The hop value will be predicted with the previous one.                      #   
+#	The hop value will be predicted with the previous one.                      #
 #	Input: scaled samples list, total number of samples, maximum and minimum    #
 #	sample value.                                                               #
 #	Output: audio hops []                                                       #
@@ -200,7 +200,7 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 def getHops(samples, n_samples, max_sample, min_sample):
 	"""Returns the hops lists for a given audio samples.
 
-	Parameters: Scaled samples list (signed 16 bits integers), 
+	Parameters: Scaled samples list (signed 16 bits integers),
 	total number of samples, maximum and minimum sample value.
 
 	This function does not throw an exception.
@@ -209,19 +209,19 @@ def getHops(samples, n_samples, max_sample, min_sample):
 	print "entramos en get hops"
 	print "max_sample=", max_sample
         print "min_sample=", min_sample
-        
+
 	# Hop1 interval: [512, 1280], since we are working with 16 bits
 	max_hop1 = 1024 #1280 #2024 # 2048 #1280
 	min_hop1 = 128 #64 #512
 
 	# We start in the center of the interval
-	start_hop1 = (max_hop1+min_hop1)/2 
+	start_hop1 = (max_hop1+min_hop1)/2
 	hop1 = start_hop1
 
 	hop0 = 0 # Predicted amplitude signal
 	hop_number = 4 # Pre-selected hop -> 4 is null hop
 	os = 0 # Original sample
-	amp = 0 # Amplitude position, from 0 to n_samples   
+	amp = 0 # Amplitude position, from 0 to n_samples
 	last_small_hop = "false" # Indicates if last hop is small. Used for h1 adaptation mechanism
 
 	hops = [-1] * n_samples # Final hop values
@@ -230,22 +230,23 @@ def getHops(samples, n_samples, max_sample, min_sample):
 	s = 0 # Sample counter
 	k = 0 # Original color counter
 
+	error_center=0
+	error_avg=0
 
-        error_center=0
-        error_avg=0
+	min_sample = 0
+	max_sample = 65535;
 
 	while (s < n_samples): # We iterate over all the audio samples
-		
+
 		# Original audio amplitudes are stored in the array "samples"
+		samples[k] += 32767
 		os = samples[k]
 
 		# HOP0 PREDICTION #
 		# ------------------------------------------------------------------------------ #
 
 		# We just need the previous amplitude value.
-		#if (s > 0):
-                if (s > 2):
-			#hop0 = result[amp-1]
+		if (s > 2):
 			hop0 = result[amp-1]+(result[amp-1]- result[amp-2])/2
 		else:
 			hop0 = os
@@ -253,17 +254,17 @@ def getHops(samples, n_samples, max_sample, min_sample):
 		# HOPS COMPUTATION #
 		# ---------------------------------------------------- #
 
-		# Initial error values 
-		emin = max_sample # Current minimum prediction error 
-		e2 = 0 # Computed error for each hop 
+		# Initial error values
+		emin = max_sample # Current minimum prediction error
+		e2 = 0 # Computed error for each hop
 		finbuc = 0 # We can optimize the code below with this
 
 		# Positive hops computation
-		if (os - hop0 >= 0): 
+		if (os - hop0 >= 0):
 			for j in range (4, 9):
 				# We start checking the difference between the original amplitude and the cache
 				e2 = os - calculateHops(hop0, hop1, j, max_sample, min_sample)
-				if (e2 < 0): 
+				if (e2 < 0):
 					e2 = - e2
 					finbuc = 1 # When error is negative, we get the hop we need
 				if (e2 < emin):
@@ -277,17 +278,17 @@ def getHops(samples, n_samples, max_sample, min_sample):
 		# Negative hops computation. Same bucle as before
 		else:
 			for j in range(4, -1, -1):
-				e2 = calculateHops(hop0, hop1, j, max_sample, min_sample) - os  
-				if (e2 < 0): 
+				e2 = calculateHops(hop0, hop1, j, max_sample, min_sample) - os
+				if (e2 < 0):
 					e2 = - e2
-					finbuc = 1 
-				if (e2 < emin): 
-					hop_number = j 
+					finbuc = 1
+				if (e2 < emin):
+					hop_number = j
 					emin = e2
 					if (finbuc == 1):
 						break
 				else:
-					break 
+					break
 
 		# Assignment of final value
 		result[amp] = calculateHops(hop0, hop1, hop_number, max_sample, min_sample) # Final amplitude
@@ -296,21 +297,20 @@ def getHops(samples, n_samples, max_sample, min_sample):
                 #error computation
                 error_center+=(os-result[amp]);
                 error_avg+=abs(os-result[amp]);
-		
 
 
 		# Tunning hop1 for the next hop ("h1 adaptation")
-		small_hop = "false" 
-		if (hop_number <= 5 and hop_number >= 3): 
+		small_hop = "false"
+		if (hop_number <= 5 and hop_number >= 3):
 			small_hop = "true" # Hop 4 is in the center and is null.
 		else:
-			small_hop = "false"      
+			small_hop = "false"
 
 		# If we have small hops, that means we are in a plain zone, so we increase precision
 		if (small_hop == "true" and last_small_hop == "true"):
 			hop1 = hop1 -128
 			if (hop1 < min_hop1):
-				hop1 = min_hop1 
+				hop1 = min_hop1
 		else:
 			hop1 = max_hop1
 
@@ -319,7 +319,7 @@ def getHops(samples, n_samples, max_sample, min_sample):
 		last_small_hop = small_hop
 		amp = amp + 1
 
-		s = s + 1 
+		s = s + 1
 		k = k + 1
 
         print ("total samples:", n_samples);
