@@ -70,7 +70,7 @@ def scaleSamples(samples, scaled_max_value):
 
 	maximum = max(max(samples), abs(min(samples))) # Maximum absolute value of the list
 	ksamp = maximum/scaled_max_value # Scaling factor
-	ksamp=pow(2,16)/32767
+	ksamp=pow(2,31)/32767
         print "max y min samples:",int(max(samples)),int(min(samples))
                                                   
 	# We scale all the samples

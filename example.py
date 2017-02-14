@@ -26,15 +26,15 @@ if __name__=='__main__':
 	# Function selection
 	while (function != "enc" and function != "dec" and function != "exit" and function!=""):
 		print ""
-		function = raw_input("Select the function. Please, type enc for encoding, dec for decoding or exit if you want to close the program: ")
+		function = raw_input("Select the function. Please, type ENTER for enc+dec, enc for encoding, dec for decoding or exit if you want to close the program: ")
 
 	# --- ENCODER --- #
 
 	if function == "enc" or function=="":
 
 		# Input audio path
-		using = "input_audio/ali.wav"
-		#using = "input_audio/track1.wav"
+		#using = "input_audio/ali.wav"
+		using = "input_audio/track1.wav"
 		#using = "input_audio/SafetyDance.wav"
 		#using = "input_audio/dontyou.wav"
 		#using = "input_audio/Alizee.wav"
