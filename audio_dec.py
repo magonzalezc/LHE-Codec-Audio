@@ -125,8 +125,10 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
 
 	# We give the result list a more readable format
 	for i in range(0, len(result)):
-		result[i] = int(result[i]) 
-
+		result[i] = int(result[i])
+                if result[i]<0 :
+                        print result[i] # no puede ocurrir
+                result[i] = result[i]-32768 #767 
 	return result 
 
 
@@ -153,7 +155,9 @@ def getAudio(samples):
 	values = [] # Decodified amplitude values
 
 	for i in range(0, len(samples)):
-		sample = struct.pack('h', samples[i])
+                #print i, "-->",samples[i]
+		#sample = struct.pack('h', samples[i])
+                sample = struct.pack('h', samples[i])
 		values.append(sample) # Left channel
 		values.append(sample) # Right channel
 

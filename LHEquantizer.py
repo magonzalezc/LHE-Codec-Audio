@@ -39,7 +39,7 @@ def getSamples(filename):
 	for i in range(0, n_samples):
 		waveData = file.readframes(1)
 		#data[i] = int(struct.unpack("<l", waveData)[0])
-                data[i] = int(struct.unpack("<l", waveData)[0])
+                data[i] = int(struct.unpack("<i", waveData)[0])
                 
 	# Then we scale the samples (if needed) so they have 16 bits
 	#if (max(data) > 65535 or min(data) < 65535):
@@ -76,7 +76,8 @@ def scaleSamples(samples, scaled_max_value):
 	# We scale all the samples
 	for i in range(0, len(samples)):
                 #ksamp=131070
-		samples[i] = int(samples[i]/ksamp)
+		#samples[i] = int(samples[i]/ksamp)
+                samples[i] = int(samples[i]/ksamp)+32768
 
 	return samples
 
@@ -104,11 +105,16 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 
 	# Samples belong to the interval [-32768, 32767], so we move them to
 	# [0, 65535] to avoid mathematical problems
-	hop0 = hop0 - min_sample
 
-	percent_range = 1 # Factor for positive and negative ratios
+	
+	# esto lo quito porque ya he arreglado las muestras
+	#hop0 = hop0 - min_sample
+
+        #hop0 = hop0 - 32767
+        
+	percent_range = 0.15 # Factor for positive and negative ratios
 	#rmax = 13.5 # Factor for ratio limits
-	rmax = 4 # Factor for ratio limits 128*r*r*r = 27648
+	rmax = 7 # Factor for ratio limits 128*r*r*r = 43K
 
 
         # con rango=1 parece mejor. curioso
@@ -129,7 +135,8 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 
 	# Ratio values for positive hops	
 	#ratio_pos = pow(percent_range * abs((max_sample - min_sample - 1 - hop0)/(hop1)), 0.33333333) 
-        ratio_pos = pow(percent_range * abs((32767 - hop0)/(hop1)), 0.33333333) 
+        #ratio_pos = pow(percent_range * abs((32767 - hop0)/(hop1)), 0.33333333) 
+        ratio_pos = pow(percent_range * abs((65535 - hop0)/(hop1)), 0.33333333) 
 	
 	# Ratio values for negative hops
 	ratio_neg = pow(percent_range * abs((hop0)/(hop1)), 0.33333333) 	
@@ -140,8 +147,8 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 
 	# con ratio=2 obtengo 48.08 db
 	# con ratio=2.5 obtengo 47.18 db
-        ratio_pos=2
-        ratio_neg=2
+        #ratio_pos=2
+        #ratio_neg=2
         
 	
 	# --- AMPLITUDES COMPUTATION --- #
@@ -180,11 +187,13 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 	# Hop result limits
 	if (hop_result <= 0):
 		hop_result = 1
-	if (hop_result > max_sample - min_sample):
-		hop_result = max_sample - min_sample - 1
-	
+	#if (hop_result > max_sample - min_sample):
+	#	hop_result = max_sample - min_sample - 1
+        if (hop_result > 65535):
+                hop_result = 65535
 	# We bring back the sample to the [-32768, 32767] interval
-	hop_result = hop_result + min_sample
+	
+	#hop_result = hop_result + min_sample
 
 	return hop_result
 

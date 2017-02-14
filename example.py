@@ -34,6 +34,7 @@ if __name__=='__main__':
 
 		# Input audio path
 		#using = "input_audio/ali.wav"
+		#using = "input_audio/insomnia.wav"
 		using = "input_audio/track1.wav"
 		#using = "input_audio/SafetyDance.wav"
 		#using = "input_audio/dontyou.wav"
@@ -50,7 +51,9 @@ if __name__=='__main__':
 		print ""
 
 		# Binary encoder
+		print "translating from hops to symbols..."
 		sym = getSymbols(hops)
+		print "hops to symbols done"
 		writeFile(sym, samples[0], n_samples, max_sample, min_sample)
 		print ".lhe file created."
 
@@ -66,8 +69,12 @@ if __name__=='__main__':
 		sym = getSymbolsList(path, n_sym, n_samples)
 
 		# Audio decoder
+		print "translating syms to hops..."
 		hops = symbolsToHops(sym)
+		print "syms to hops done"
+		print "translating hops to samples..."
 		samples = hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample)
+		print "hops to samples done"
 		getAudio(samples)
 		print "Output audio file created."
 
