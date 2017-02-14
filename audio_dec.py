@@ -69,7 +69,7 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
 
 	# Hop1 interval: [512, 1280], since we are working with 16 bits
 	max_hop1 = 1024#1280
-	min_hop1 = 256#512
+	min_hop1 = 128 #256#512
 
 	# We start in the center of the interval
 	start_hop1 = (max_hop1 + min_hop1) / 2 
@@ -92,11 +92,13 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
 		# --------------- #
 
 		# We just need the previous amplitude value, since audio amplitude is a continuous function
-		if (s > 0):
-			hop0 = result[amp-1]
+		#if (s > 0):
+                if (s > 2):
+			#hop0 = result[amp-1]
+			hop0 = result[amp-1]+(result[amp-1]- result[amp-2])/2
 		else:
 			hop0 = first_amp # If there isn't previous value, we are in the first sample
-
+                
 		# Assignment of final value
 		
 		result[amp] = calculateHops(hop0, hop1, hop_number, max_sample, min_sample) # Final amplitude

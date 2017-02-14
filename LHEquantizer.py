@@ -70,7 +70,7 @@ def scaleSamples(samples, scaled_max_value):
 
 	maximum = max(max(samples), abs(min(samples))) # Maximum absolute value of the list
 	ksamp = maximum/scaled_max_value # Scaling factor
-	ksamp=pow(2,31)/32767
+	ksamp=pow(2,31)/32768
         print "max y min samples:",int(max(samples)),int(min(samples))
                                                   
 	# We scale all the samples
@@ -106,9 +106,25 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 	# [0, 65535] to avoid mathematical problems
 	hop0 = hop0 - min_sample
 
-	percent_range = 0.8 # Factor for positive and negative ratios
-	rmax = 13.5 # Factor for ratio limits
-	#rmax = 5.4 # Factor for ratio limits
+	percent_range = 1 # Factor for positive and negative ratios
+	#rmax = 13.5 # Factor for ratio limits
+	rmax = 4 # Factor for ratio limits 128*r*r*r = 27648
+
+
+        # con rango=1 parece mejor. curioso
+	# 2->44.65 db
+	# 2.5->45.27 esta es la rmax mejor
+	# 3->45.04 db
+	# 3.1->44.86
+	# 3.25->44.82
+	# 3.5-> 44.82
+	# 4->44.65 db
+
+        # con rango =0.75 parece peor
+        # r=2.5 -> 44.09
+        # r=3 -> 44.13
+        # r=4 -> 44.09
+	
 	hop_result = 0 # Final hop
 
 	# Ratio values for positive hops	
@@ -117,20 +133,19 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 	
 	# Ratio values for negative hops
 	ratio_neg = pow(percent_range * abs((hop0)/(hop1)), 0.33333333) 	
-        #ratio_neg = pow(percent_range * abs((hop0)/(hop1)), 0.33333333)
         
-	#ratio_pos= min (3.6,ratio_pos)
-	#ratio_neg= min (3.6,ratio_neg)
-	# Ratio limits
-	if (ratio_pos > rmax):
-		ratio_pos = rmax 
-	if (ratio_neg > rmax):
-		ratio_neg = rmax
+        
+	ratio_pos= min (ratio_pos,rmax)
+	ratio_neg= min (ratio_neg,rmax)
 
-	# --- AMPLITUDES COMPUTATION --- #
+	# con ratio=2 obtengo 48.08 db
+	# con ratio=2.5 obtengo 47.18 db
         ratio_pos=2
         ratio_neg=2
-
+        
+	
+	# --- AMPLITUDES COMPUTATION --- #
+        
 
 	# Amplitude of positive hops
 	h6 = hop1 * ratio_pos 
@@ -197,7 +212,7 @@ def getHops(samples, n_samples, max_sample, min_sample):
         
 	# Hop1 interval: [512, 1280], since we are working with 16 bits
 	max_hop1 = 1024 #1280 #2024 # 2048 #1280
-	min_hop1 = 256 #64 #512
+	min_hop1 = 128 #64 #512
 
 	# We start in the center of the interval
 	start_hop1 = (max_hop1+min_hop1)/2 
@@ -228,8 +243,10 @@ def getHops(samples, n_samples, max_sample, min_sample):
 		# ------------------------------------------------------------------------------ #
 
 		# We just need the previous amplitude value.
-		if (s > 0):
-			hop0 = result[amp-1]
+		#if (s > 0):
+                if (s > 2):
+			#hop0 = result[amp-1]
+			hop0 = result[amp-1]+(result[amp-1]- result[amp-2])/2
 		else:
 			hop0 = os
 
