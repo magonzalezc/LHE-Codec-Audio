@@ -43,6 +43,13 @@ if __name__=='__main__':
 		#using = "input_audio/momentos.wav"
 		# LHE Quantizer
 		samples, n_samples, max_sample, min_sample = getSamples(using)
+
+		#DEBUG FILE: SCALED AUDIO
+		scaled_samples = [0] * n_samples
+		for i in range (0, n_samples):
+			scaled_samples[i] = samples[i] - 32767
+		getAudio(scaled_samples, 'output_lhe/audio/original_scaled_audio.wav')
+
 		hops, result = getHops(samples, n_samples, max_sample, min_sample)
 
 		# We get the audio PSNR
@@ -74,8 +81,9 @@ if __name__=='__main__':
 		print "syms to hops done"
 		print "translating hops to samples..."
 		samples = hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample)
+
 		print "hops to samples done"
-		getAudio(samples)
+		getAudio(samples, 'output_lhe/audio/output_audio.wav')
 		print "Output audio file created."
 
 	# --- EXIT --- #
@@ -84,4 +92,3 @@ if __name__=='__main__':
 
 		print ''
 		sys.exit(1)
-
