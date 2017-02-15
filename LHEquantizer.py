@@ -246,8 +246,10 @@ def getHops(samples, n_samples, max_sample, min_sample):
 		# ------------------------------------------------------------------------------ #
 
 		# We just need the previous amplitude value.
-		if (s > 2):
+		if (s > 1):
 			hop0 = result[amp-1]+(result[amp-1]- result[amp-2])/2
+		elif (s == 1):
+			hop0 = result[amp-1]
 		else:
 			hop0 = os
 
@@ -294,9 +296,9 @@ def getHops(samples, n_samples, max_sample, min_sample):
 		result[amp] = calculateHops(hop0, hop1, hop_number, max_sample, min_sample) # Final amplitude
 		hops[amp] = hop_number  # Final hop value
 
-                #error computation
-                error_center+=(os-result[amp]);
-                error_avg+=abs(os-result[amp]);
+		#error computation
+		error_center+=(os-result[amp]);
+		error_avg+=abs(os-result[amp]);
 
 
 		# Tunning hop1 for the next hop ("h1 adaptation")

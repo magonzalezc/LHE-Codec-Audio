@@ -21,7 +21,7 @@ from example import calculateHops
 #	Output: Hops list.                                                          #
 #*******************************************************************************#
 
-def symbolsToHops(sym): 
+def symbolsToHops(sym):
 	"""Transforms a symbols list into its respective hops one.
 
 	Parameters: symbols list (integers from 1 to 9)
@@ -72,17 +72,20 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
 	min_hop1 = 128 #256#512
 
 	# We start in the center of the interval
-	start_hop1 = (max_hop1 + min_hop1) / 2 
+	start_hop1 = (max_hop1 + min_hop1) / 2
 	hop1 = start_hop1
 
 	hop0 = 0 # Predicted amplitude signal
 	hop_number = 4 # Pre-selected hop -> 4 is null hop
-	amp = 0 # Amplitude position, from 0 to image size        
+	amp = 0 # Amplitude position, from 0 to image size
 	last_small_hop = "false" # Indicates if last hop is small. Used for h1 adaptation mechanism
 
 	result = [-1] * n_samples  # List where we will save the samples values
 
 	s = 0 # Sample counter
+
+	max_sample = 65535
+	min_sample = 0
 
 	while (s < n_samples): # # We iterate over all the audio samples
 
@@ -92,42 +95,41 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
 		# --------------- #
 
 		# We just need the previous amplitude value, since audio amplitude is a continuous function
-		#if (s > 0):
-                if (s > 2):
-			#hop0 = result[amp-1]
+		if (s > 1):
 			hop0 = result[amp-1]+(result[amp-1]- result[amp-2])/2
+		elif (s == 1):
+			hop0 = result[amp-1]
 		else:
 			hop0 = first_amp # If there isn't previous value, we are in the first sample
-                
+
 		# Assignment of final value
-		
 		result[amp] = calculateHops(hop0, hop1, hop_number, max_sample, min_sample) # Final amplitude
 
 		# Tunning hop1 for the next hop ("h1 adaptation")
-		small_hop = "false" 
-		if (hop_number <= 5 and hop_number >= 3): 
+		small_hop = "false"
+		if (hop_number <= 5 and hop_number >= 3):
 			small_hop = "true" # Hop 4 is in the center and is null
 		else:
-			small_hop = "false"      
+			small_hop = "false"
 
 		# If we have small hops, that means we are in a plain zone, so we increase precision
 		if (small_hop == "true" and last_small_hop == "true"):
 			hop1 = hop1 - 128
 			if (hop1 < min_hop1):
-				hop1 = min_hop1 
+				hop1 = min_hop1
 		else:
 			hop1 = max_hop1
 
 		# Let's go for the next sample
-		last_small_hop = small_hop  
+		last_small_hop = small_hop
 		amp = amp + 1
 		s = s + 1
 
 	# We give the result list a more readable format
 	for i in range(0, len(result)):
-		result[i] = int(result[i]) 
+		result[i] = int(result[i]-32767)
 
-	return result 
+	return result
 
 
 #*******************************************************************************#

@@ -68,6 +68,8 @@ if __name__=='__main__':
 		# Audio decoder
 		hops = symbolsToHops(sym)
 		samples = hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample)
+
+		correcto = 0
 		getAudio(samples)
 		print "Output audio file created."
 
@@ -77,4 +79,3 @@ if __name__=='__main__':
 
 		print ''
 		sys.exit(1)
-
