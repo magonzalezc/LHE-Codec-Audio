@@ -226,6 +226,7 @@ def getHops(samples, n_samples, max_sample, min_sample):
 
 	hops = [-1] * n_samples # Final hop values
 	result = [-1] * n_samples # Final amplitude values
+	delta = [-1] * n_samples # Delta signal
 
 	s = 0 # Sample counter
 	k = 0 # Original color counter
@@ -246,10 +247,18 @@ def getHops(samples, n_samples, max_sample, min_sample):
 		# ------------------------------------------------------------------------------ #
 
 		# We just need the previous amplitude value.
-		if (s > 2):
-			hop0 = result[amp-1]+(result[amp-1]- result[amp-2])/2
+		if (s > 0):
+			prediction = result[amp-1]
 		else:
-			hop0 = os
+			prediction = os
+
+		delta[amp] = (os - prediction)/2 + 32767
+		os = delta[amp]
+
+		if (s > 0):
+			hop0 = delta[amp-1]
+		else:
+			hop0 = delta[amp]
 
 		# HOPS COMPUTATION #
 		# ---------------------------------------------------- #
@@ -258,6 +267,9 @@ def getHops(samples, n_samples, max_sample, min_sample):
 		emin = max_sample # Current minimum prediction error
 		e2 = 0 # Computed error for each hop
 		finbuc = 0 # We can optimize the code below with this
+
+		#if (k<20):
+			#print os, hop0
 
 		# Positive hops computation
 		if (os - hop0 >= 0):
@@ -291,14 +303,14 @@ def getHops(samples, n_samples, max_sample, min_sample):
 					break
 
 		# Assignment of final value
-		result[amp] = calculateHops(hop0, hop1, hop_number, max_sample, min_sample) # Final amplitude
+		delta[amp] = calculateHops(hop0, hop1, hop_number, max_sample, min_sample)
+		result[amp] = prediction + (delta[amp] - 32767)*2 # Final amplitude
 		hops[amp] = hop_number  # Final hop value
 
-                #error computation
-                error_center+=(os-result[amp]);
-                error_avg+=abs(os-result[amp]);
-
-
+        #error computation
+		error_center+=(os-result[amp]);
+		error_avg+=abs(os-result[amp]);
+		
 		# Tunning hop1 for the next hop ("h1 adaptation")
 		small_hop = "false"
 		if (hop_number <= 5 and hop_number >= 3):
