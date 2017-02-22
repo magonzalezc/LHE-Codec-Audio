@@ -132,6 +132,41 @@ def hopsToSamples(hops, first_amp, n_samples, max_sample, min_sample):
                 result[i] = result[i]-32768 #767
 	return result
 
+#*******************************************************************************#
+#	Function getAudio: This gets and saves an audio in .wav format based on the #
+#	samples given.                                                              #
+#	Input: samples list                                                         #
+#	Output: None, just saves the audio in the output_lhe/audio subfolder        #
+#*******************************************************************************#
+
+def getAudioStereo(samples_channel0, samples_channel1, name_file):
+	"""Saves the new audio in the specified subfolder given its samples values.
+
+	Parameters: Samples values list
+
+	Exceptions: This function will throw an exception if the specified folder
+	does not exist.
+
+	"""
+
+	output = wave.open(name_file, 'w')
+	output.setparams((2, 2, 48000, 0, 'NONE', 'not compressed')) # 2 channels, 2 values per sample, 48000 Hz
+
+	values = [] # Decodified amplitude values
+
+	for i in range(0, len(samples_channel0)):
+        #print i, "-->",samples[i]
+		#sample = struct.pack('h', samples[i])
+		sample_channel0 = struct.pack('h', samples_channel0[i])
+		sample_channel1 = struct.pack('h', samples_channel1[i])
+		values.append(sample_channel0) # Left channel
+		values.append(sample_channel1) # Right channel
+
+	value_str = ''.join(values)
+	output.writeframes(value_str)
+
+	output.close()
+
 
 #*******************************************************************************#
 #	Function getAudio: This gets and saves an audio in .wav format based on the #

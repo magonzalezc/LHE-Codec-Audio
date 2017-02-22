@@ -7,6 +7,7 @@ This module gets the hops lists of the 16 bits audio file given.
 # Author: Eduardo Rodes Pastor
 
 import struct, wave
+from scipy.io import wavfile
 
 # --------------#
 # LHE QUANTIZER #
@@ -28,21 +29,27 @@ def getSamples(filename):
 	Exceptions: This function does not throw an exception.
 
 	"""
-
 	min_data = 0
 	max_data = 65535
-	scaled_factor = 32767
+	scaled_factor = 32768
 
 	# Loading audio file
 	file = wave.open(filename, "r")
 	n_samples = file.getnframes()
 
 	data = [0] * n_samples # List where we will save the samples values
+	data_channel0 = [0] * n_samples # List where we will save the samples values
+	data_channel1 = [0] * n_samples # List where we will save the samples values
 
-	# We don't know how big are the samples, so we extract them with 'l' (32 bits)
+	sampling_rate, data_test = wavfile.read(filename)
+
 	for i in range(0, n_samples):
 		waveData = file.readframes(1)
 		data[i] = int(struct.unpack("<i", waveData)[0])
+
+	for i in range(0, n_samples):
+		data_channel0[i] = data_test[i][0] + scaled_factor
+		data_channel1[i] = data_test[i][1] + scaled_factor
 
 	# Then we scale the samples (if needed) so they have 16 bits
 	#if (max(data) > 65535 or min(data) < 65535):
@@ -50,10 +57,12 @@ def getSamples(filename):
 
 	#if (max(data) > 32767 or min(data) < 32768):
 	#	data = scaleSamples(data, 32767)
+	print "max y min samples channel 0:",int(max(data_channel0)),int(min(data_channel0))
+	print "max y min samples channel 1:",int(max(data_channel1)),int(min(data_channel1))
 	print "scaled max y min samples:",int(max(data)),int(min(data))
 	print "we consider max data:", max_data, "min data:", min_data
 
-	return data, n_samples, max_data, min_data
+	return data, data_channel0, data_channel1, n_samples, max_data, min_data
 
 
 #*******************************************************************************#
@@ -194,8 +203,8 @@ def calculateHops(hop0, hop1, hop_number, max_sample, min_sample):
 		hop_result = 1
 	#if (hop_result > max_sample - min_sample):
 	#	hop_result = max_sample - min_sample - 1
-        if (hop_result > 65535):
-                hop_result = 65535
+	if (hop_result > 65535):
+		hop_result = 65535
 	# We bring back the sample to the [-32768, 32767] interval
 
 	#hop_result = hop_result + min_sample
@@ -274,12 +283,9 @@ def getHops(samples, n_samples, max_sample, min_sample):
 				e2 = os - calculateHops(hop0, hop1, j, max_sample, min_sample)
 				if (e2 < 0):
 					e2 = - e2
-					finbuc = 1 # When error is negative, we get the hop we need
 				if (e2 < emin):
 					hop_number = j # Hop assignment
 					emin = e2
-					if (finbuc == 1): # This avoids an useless iteration
-						break
 				else:
 					break
 
@@ -289,12 +295,9 @@ def getHops(samples, n_samples, max_sample, min_sample):
 				e2 = calculateHops(hop0, hop1, j, max_sample, min_sample) - os
 				if (e2 < 0):
 					e2 = - e2
-					finbuc = 1
 				if (e2 < emin):
 					hop_number = j
 					emin = e2
-					if (finbuc == 1):
-						break
 				else:
 					break
 
